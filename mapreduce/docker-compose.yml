@@ -1,0 +1,91 @@
+version: '2'
+services:
+  namenode:
+    image: 'flokkr/hadoop:latest'
+    container_name: namenode
+    hostname: namenode
+    command:
+      - hdfs
+      - namenode
+    ports:
+      - '127.0.5.1:50070:50070'
+      - '127.0.5.1:9870:9870'
+    env_file:
+      - hadoop.env
+    environment:
+      ENSURE_NAMENODE_DIR: /tmp/hadoop-hadoop/dfs/name
+  datanode1:
+    image: 'flokkr/hadoop:latest'
+    command:
+      - hdfs
+      - datanode
+    container_name: datanode1
+    hostname: datanode1
+    ports:
+      - '127.0.6.1:9864:9864'
+      - '127.0.6.1:9866:9866'
+    links:
+      - namenode
+    env_file:
+      - hadoop.env
+    volumes:
+      - ./jars/hadoop-mapreduce-examples-3.3.6.jar:/opt/hadoop/hadoop-mapreduce-examples-3.3.6.jar
+      - ./jars/hadoop-streaming-3.3.6.jar:/opt/hadoop/hadoop-streaming-3.3.6.jar
+      - ./python:/opt/hadoop/python
+      - ./data:/opt/hadoop/data
+  datanode2:
+    image: 'flokkr/hadoop:latest'
+    command:
+      - hdfs
+      - datanode
+    container_name: datanode2
+    hostname: datanode2
+    ports:
+      - '127.0.6.2:9864:9864'
+      - '127.0.6.2:9866:9866'
+    links:
+      - namenode
+    env_file:
+      - hadoop.env
+  datanode3:
+    image: 'flokkr/hadoop:latest'
+    command:
+      - hdfs
+      - datanode
+    container_name: datanode3
+    hostname: datanode3
+    ports:
+      - '127.0.6.3:9864:9864'
+      - '127.0.6.3:9866:9866'
+    links:
+      - namenode
+    env_file:
+      - hadoop.env
+  resourcemanager:
+    image: 'flokkr/hadoop:latest'
+    container_name: resourcemanager
+    hostname: resourcemanager
+    command:
+      - yarn
+      - resourcemanager
+    ports:
+      - '127.0.5.2:8088:8088'
+    env_file:
+      - hadoop.env
+    volumes:
+      - './testdata:/opt/testdata'
+  nodemanager:
+    image: 'flokkr/hadoop:latest'
+    command:
+      - yarn
+      - nodemanager
+    container_name: nodemanager
+    hostname: nodemanager
+    ports:
+      - '127.0.5.4:8042:8042'
+    links:
+      - resourcemanager
+      - namenode
+    env_file:
+      - hadoop.env
+
