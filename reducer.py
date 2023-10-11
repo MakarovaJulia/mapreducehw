@@ -1,20 +1,32 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 
-from operator import itemgetter 
+from operator import itemgetter
 import sys
 
-recipesreviewmap = {}
+current_word = None
+current_count = 0
+word = None
 
 for line in sys.stdin:
-    line = line.strip()
-    recipes, count = line.split("\n")
     try:
-        count = int(count)
-        recipesreviewmap[recipes] = recipesreviewmap.get(recipes, 0) + count
-    except ValueError:
-        pass
+        line = line.strip()
+        word, count = line.split("\t", 1)
+        try:
+            count = int(count)
+        except ValueError:
+            continue
+        if current_word == word:
+            current_count += count
+        else:
+            if current_word:
+                print("%s\t%s" % (current_word, current_count))
+            current_count = count
+            current_word = word
+    except Exception as e:
+        continue
 
-sort_recipesreviewmap = sorted(recipesreviewmap.items(), key=itemgetter(0))
-
-for recipes, countreviews in sort_recipesreviewmap:
-    print ('%s\t%s' % (recipes, countreviews))
+try:
+    if current_word == word:
+        print("%s\t%s" % (current_word, current_count))
+except Exception as e:
+    pass
